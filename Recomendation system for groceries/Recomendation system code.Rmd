@@ -1,0 +1,96 @@
+---
+title: "Apriori algorithm implimentation for groceries recomendation system"
+output:
+  html_document:
+    df_print: paged
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+install.packages("arules")
+install.packages("arulesViz")
+install.packages("repr")
+```
+
+```{r}
+
+library(arules)
+library(arulesViz)
+library(tidyverse)
+library(repr)
+library(igraph)
+```
+
+```{r} 
+#Load dataset for analysis.
+
+groceries_data <- read.transactions(".../groceries.csv", sep=",")
+```
+
+```{r}
+#These are our first 10 transactions
+
+inspect(groceries_data[1:10,])
+```
+
+```{r}
+#Summary of our dataset
+
+summary(groceries_data)
+```
+
+```{r}
+#These are items which exist atleast in 10% of transactions.
+
+itemFrequencyPlot(groceries_data, 
+                  support = .10,
+                  col="lightblue",xlab="Item name", 
+                  ylab="Frequency (relative)", 
+                  main="Item frequency plot with 10% support")
+```
+
+```{r}
+#Top 20 items with highest absolute frequency.
+
+itemFrequencyPlot(groceries_data, 
+                  topN=20, type="absolute", 
+                  col="orange2", 
+                  xlab="Item name", 
+                  ylab="Frequency (absolute)", 
+                  main="Absolute Item Frequency Plot")
+```
+
+```{r}
+#Apriori algorithm implimentation
+
+grocery_rules=apriori(groceries_data, 
+                      parameter=list(support=.03, 
+                                     confidence=.3, 
+                                     minlen=2)
+                      )
+summary(grocery_rules)
+```
+
+```{r}
+#Rules with highest lift value:
+
+inspect(sort(grocery_rules, by="lift"))
+```
+
+
+```{r}
+#Scatter plot of all 14 rules
+
+plot(grocery_rules)
+```
+
+```{r}
+#Graphical representation of all 14 rules
+
+plot(grocery_rules, method="graph")
+```
+
+
